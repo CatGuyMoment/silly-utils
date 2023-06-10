@@ -2,7 +2,7 @@
 
 class DelayMessage {
     getName() {return "DelayMessage";}
-    getDescription() {return "Ghosting: simplified";}
+    getDescription() {return "Ghosting, simplified";}
     getVersion() {return "0.1.0";}
     getAuthor() {return "CatGuyMoment";}
 
