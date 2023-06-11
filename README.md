@@ -45,9 +45,10 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 ## Limitations/ Known Issues
 
 1. Awful textbox message handling
-2. Delayed messages do not support attachments
-3. Stacking delays breaks textbox messages
-4. Absolutely zero support for other message-altering plugins, such as [Translator](https://betterdiscord.app/plugin/Translator)
+2. Unexplained !trd command ~1 minute inaccuracies
+3. Delayed messages do not support attachments
+4. Stacking delays breaks textbox messages
+5. Absolutely zero support for other message-altering plugins, such as [Translator](https://betterdiscord.app/plugin/Translator)
 
 ## Planned features
 
