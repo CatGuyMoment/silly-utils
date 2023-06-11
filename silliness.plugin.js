@@ -6,7 +6,7 @@ async function getGPT3Response(messages) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer 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",  // Replace this with your actual API key
+            Authorization: "Bearer [KEY]",  // Replace this with your actual API key
         },
         body: JSON.stringify({ 
             model: "gpt-3.5-turbo", 
