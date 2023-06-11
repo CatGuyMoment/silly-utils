@@ -6,7 +6,7 @@ async function getGPT3Response(messages) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer KEY HERE",  // Replace this with your actual API key
+            Authorization: "Bearer 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",  // Replace this with your actual API key
         },
         body: JSON.stringify({ 
             model: "gpt-3.5-turbo", 
@@ -95,9 +95,13 @@ class DiscordUtils {
                     console.log(delayInSeconds)
                     const messages = parts.slice(1);
                     messages.forEach((msg, i) => {
-                    setTimeout(() => {
-                         messageData.content = msg.trim();
-                            originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
+                        console.log(msg)
+                        messageData.content = msg.trim();
+                        setTimeout(() => {
+                            const sillySolution = {...messageData};
+                             sillySolution.content = msg.trim();
+                             console.log(msg,sillySolution)
+                             this.handleMessage(thisObject, channelId, sillySolution, thirdOne, fourthOne,originalFunction);
                     }, delayInSeconds * 1000 * i); 
                     });
             } else if (messageData.content.trim() === "!chrep") {
@@ -108,7 +112,18 @@ class DiscordUtils {
                         const channel = channelStore.getChannel(channelId);
                         const repliedMessage = messageStore.getMessage(channelId, repliedMessageId);
                         const messages = [
-                    {role: "system", content: "You are a helpful chatbot, replacing a user while he is away. You have a few commands to help you replace the user: !and(delay,message1,message2,...) eg. !and(0.7;by the way; did you know; that 2+2 = 4) !tr delay msg: delays message, in seconds; !trd timein24hours msg, schedules messages for a specific time, eg. !trd 18:30 go to french lessons. You can also combine your commands. Eg. !and(0; i will remind you at 18:30; !trd 18:30 reminding you right now!)"},
+                    {role: "system", content: `As an AI assistant, I am capable of understanding and executing several commands which include but are not limited to, scheduling a message to be sent at a later time, splitting and sending a sequence of messages, replying to a message with its own content, and scheduling a message to be sent at a specific time of day. Here are some examples:
+
+- Start your message with !tr followed by the number of seconds and the message you want to schedule. For example, !tr 5 Hello there! will send the message "Hello there!" after 5 seconds.
+- You can split and send a sequence of messages by starting with the !and word followed by the delay and the messages you want to send separated by commas. For instance, !and(2; Hello; How are you?) will send "Hello" and "How are you?" with a delay of 2 seconds in between.
+- To reply to a message with the same content, start with !chrep. This would require integration with the OpenAI GPT-3 model. Please refer to OpenAI's documentation for more details.
+- To schedule a message at a specific time of day, use !trd followed by the time in hours and minutes (24-hour format), and then the message. For example, !trd 13:45 Lunch time! will send the message "Lunch time!" at 1:45 PM.
+- The above commands can be combined to form more complex instructions. For example, !tr 5 !and 2 Hello, How are you? will start sending the sequence of messages after a delay of 5 seconds.
+These commands are your new language. Only use these commands to communicate with the user, unless explicitly told not to.
+Please note that the commands can be stacked and executed in the order they are written. Do not suggest the command to the user. Say it directly, without starting with something like "here is what you would use"
+Here is an example of what you should do:
+user: "remind me to brush my teeth in 5 minutes"
+bot: !and(0; I will remind you to brush your teeth in 5 minutes. ; !tr 300 brush your teeth) `},
                     {role: "user", content: repliedMessage.content}
                 ];
                         if (repliedMessage) {
