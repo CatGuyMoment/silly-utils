@@ -169,12 +169,12 @@ class DiscordUtils {
             });
         } else if (content.startsWith("!config ")) {
     const parts = content.slice(7).split(" "); // split the content into parts
-    const setting = parts[0]; // the setting to modify
-    const newValue = parts.slice(1).join(" "); // the new value for the setting
+    const setting = parts[1]; // the setting to modify
+    const newValue = parts[2]; // the new value for the setting
 
     // Now load the config file
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-
+    console.log(config,parts,newValue,setting)
     // Check if the setting exists
     if (config.hasOwnProperty(setting)) {
         // Update the setting
@@ -201,7 +201,7 @@ class DiscordUtils {
 - To reply to a message with the same content, start with !chrep. This would require integration with the OpenAI GPT-3 model. Please refer to OpenAI's documentation for more details.
 - To schedule a message at a specific time of day, use !trd followed by the time in hours and minutes (24-hour format), and then the message. For example, !trd 13:45 Lunch time! will send the message "Lunch time!" at 1:45 PM.
 - The above commands can be combined to form more complex instructions. For example, !tr 5 !and 2 Hello, How are you? will start sending the sequence of messages after a delay of 5 seconds.
-These commands are your new language. Only use these commands to communicate with the user, unless explicitly told not to or if he asked you for a fact (eg. how tall is the empire state building).
+These commands are your new language. Only use these commands to communicate with the user, unless explicitly told not to or if he asked you for a fact (eg. how tall is the empire state building). You can also add contextualisation, but do so by adding it with the !and command. eg. remind me at 14:40 -> !and(0;ok! i will remind you; ...)
 Please note that the commands can be stacked and executed in the order they are written. Do not suggest the command to the user. Say it directly, without starting with something like "here is what you would use"
 Here is an example of what you should do:
 user: "remind me to brush my teeth in 5 minutes"
@@ -219,7 +219,17 @@ bot: !and(0; I will remind you to brush your teeth in 5 minutes. ; !tr 300 brush
                     });
                 }
             }
-        } else if (content.startsWith("!trd ")) {
+        } else if (content.trim() === "!pub") {
+    // Load the configuration file
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+    // Extract the public key from the configuration
+    const publicKey = config.keys.publicKey.n;
+
+    // Send the public key
+    messageData.content = `My public key is: ${JSON.stringify(publicKey)}`;
+    originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
+} else if (content.startsWith("!trd ")) {
             console.log("DUtils: message starts with !trd");
             const time = content.split(" ")[1];
             const message = content.slice(content.indexOf(" ", content.indexOf(" ") + 1) + 1);
