@@ -46,6 +46,6 @@ This plugin is designed to be used with the BetterDiscord application. To instal
 4. Click on "Open Plugins Folder"
 (Optional step: edit the "silliness.plugin.js file and add your API key to be able to use the !chrep command)
 5. Move the downloaded plugin file into the Plugins folder
-6. Enable the plugin in the "Plugins" tab in settings
+6. Switch the plugin toggle to "ON"
 7. The plugin should now be available for use
 
