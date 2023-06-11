@@ -15,7 +15,7 @@ If you wish to delay the sending of a message, use the `!tr` command followed by
 
 ### Send Multiple Messages with a Delay
 
-To send multiple messages with a delay between each one, use the `!and` command followed by the delay in seconds and then the messages, separated by commas. For example, `!and 3 Hello, How are you?, Goodbye!` will send "Hello", "How are you?", and "Goodbye!" with a delay of 3 seconds between each message.
+To send multiple messages with a delay between each one, use the `!and` command followed by the delay in seconds and then the messages, separated by commas. For example, `!and(3; Hello; How are you?; Goodbye!)` will send "Hello", "How are you?", and "Goodbye!" with a delay of 3 seconds between each message.
 
 **Usage:** `!and(` `message1`; `message2`; `...)`
 
