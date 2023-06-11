@@ -38,7 +38,7 @@ Commands provided by the DelayMessage plugin are stackable, allowing you to mix 
 
 **Examples of usage:**
 
-`!and(0; reminding you to go to bed; !trd 22:00 go to bed)`
+`!and(0; dw ill remind you to go to bed; !trd 22:00 go to bed)`
 
 `!trd 16:20 !and(0.7; OH MY GOD BRO; IT'S 4:20 OMG!!!!!)`
 
