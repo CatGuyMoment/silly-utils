@@ -38,7 +38,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 **Examples of usage:**
 
-`!and(0; dw ill remind you to go to bed; !trd 22:00 go to bed)`
+`!and(0; ok ill remind you to go to bed at 10pm; !trd 22:00 go to bed)`
 
 `!trd 16:20 !and(0.7; OH MY GOD BRO; IT'S 4:20 OMG!!!!!)`
 
