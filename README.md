@@ -34,7 +34,7 @@ The plugin also includes an integration with OpenAI's GPT-3 API. If you reply to
 
 ### Stackable Commands
 
-Commands provided by the DelayMessage plugin are stackable, allowing you to mix and match them for more complex interactions. For example, you can schedule a message to be sent at a particular time and also specify that it should automatically reply to a certain message with GPT-3.
+Commands provided by the DiscordUtils plugin are stackable, allowing you to mix and match them for more complex interactions. For example, you can schedule a message to be sent at a particular time and also specify that it should automatically reply to a certain message with GPT-3.
 
 **Examples of usage:**
 
