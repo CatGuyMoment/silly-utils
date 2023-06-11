@@ -1,4 +1,4 @@
-//META{"name":"DelayMessage"}*//
+//META{"name":"DiscordUtils"}*//
 
 async function getGPT3Response(messages) {
     const url = "https://api.openai.com/v1/chat/completions";
@@ -20,42 +20,42 @@ async function getGPT3Response(messages) {
     return data.choices[0].message.content.trim();
 }
 // ignore the awful indentation, i copy pasted too much nonesense from stack overflow
-class DelayMessage {
+class DiscordUtils {
     getName() {return "DiscordUtils";}
     getDescription() {return "Ghosting, Simplified";}
     getVersion() {return "0.1.0";}
     getAuthor() {return "CatGuyMoment";}
 
     start() {
-        console.log("DelayMessage: start");
+        console.log("DUtils: start");
         this.initialize();
     }
 
     initialize() {
-        console.log("DelayMessage: initialize");
+        console.log("DUtils: initialize");
 
         setTimeout(() => {
-            console.log("DelayMessage: setTimeout callback");
+            console.log("DUtils: setTimeout callback");
             const MessageModule = BdApi.findModuleByProps("sendMessage");
             if(!MessageModule) {
-                console.error('MessageModule could not be found. DelayMessage plugin cannot start.');
+                console.error('MessageModule could not be found. DUtils plugin cannot start.');
                 return;
             }
 
             this.cancel = BdApi.Patcher.instead('DelayMessage', MessageModule, "sendMessage", (thisObject, methodArguments, originalFunction) => {
                 const textbox = document.querySelector(".placeholder-1rCBhr.slateTextArea-27tjG0.fontSize16Padding-XoMpjI");
-                console.log("DelayMessage: instead sendMessage");
+                console.log("DUtils: instead sendMessage");
                 const [channelId, messageData, thirdOne, fourthOne] = methodArguments;
                 this.handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction, textbox);
             });
         }, 1000);
     }
     handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction, textbox) {
-                console.log("DelayMessage: instead sendMessage");
+                console.log("DUtils: instead sendMessage");
                 
                 const content = messageData.content;
                 if (content.startsWith("!tr ")) {
-                    console.log("DelayMessage: message starts with !time");
+                    console.log("DUtils: message starts with !time");
                     const time = content.split(" ")[1];
                     const message = content.slice(content.indexOf(" ", content.indexOf(" ") + 1) + 1);
                     messageData.content = message;
@@ -70,7 +70,7 @@ class DelayMessage {
                     },0);
                     this.startInterval();
                     setTimeout(() => {
-                        console.log(`DelayMessage: sending delayed message after ${time} seconds: "${message}"`);
+                        console.log(`DUtils: sending delayed message after ${time} seconds: "${message}"`);
                         this.handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction);
                         this.delayedMessage = null;
                         const textbox = document.querySelector(".placeholder-1rCBhr.slateTextArea-27tjG0.fontSize16Padding-XoMpjI");
@@ -119,7 +119,7 @@ class DelayMessage {
             }
                     }
                 } else if (content.startsWith("!trd ")) {
-                    console.log("DelayMessage: message starts with !trd");
+                    console.log("DUtils: message starts with !trd");
                     const time = content.split(" ")[1];
                     const message = content.slice(content.indexOf(" ", content.indexOf(" ") + 1) + 1);
                     const [hours, minutes] = time.split(':');
@@ -142,7 +142,7 @@ class DelayMessage {
                     },0);
                     this.startInterval();
                     setTimeout(() => {
-                        console.log(`DelayMessage: sending delayed message at ${delay}: "${message}"`);
+                        console.log(`DUtils: sending delayed message at ${delay}: "${message}"`);
                         this.handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction);
                         this.delayedMessage = null;
                         clearInterval(this.intervalId);
