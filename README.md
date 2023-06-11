@@ -6,9 +6,11 @@
 
 ## Features
 
-### Delay Sending a Message
+### Delay Sending a Message 
 
 If you wish to delay the sending of a message, use the `!tr` command followed by the delay in seconds, and then the message. For example, `!tr 5 Hello World!` will send "Hello World!" after a delay of 5 seconds.
+Usage: `!tr` `delay [SECONDS]` `message`
+
 
 ### Send Multiple Messages with a Delay
 
