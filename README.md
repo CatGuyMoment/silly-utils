@@ -37,7 +37,9 @@ The plugin also includes an integration with OpenAI's GPT-3 API. If you reply to
 Commands provided by the DelayMessage plugin are stackable, allowing you to mix and match them for more complex interactions. For example, you can schedule a message to be sent at a particular time and also specify that it should automatically reply to a certain message with GPT-3.
 
 **Examples of usage:**
+
 `!and(0; reminding you to go to bed; !trd 22:00 go to bed)`
+
 `!trd 16:20 !and(0.7; OH MY GOD BRO; IT'S 4:20 OMG!!!!!)`
 
 ## Limitations/ Known Issues
