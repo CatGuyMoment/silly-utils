@@ -9,24 +9,36 @@
 ### Delay Sending a Message 
 
 If you wish to delay the sending of a message, use the `!tr` command followed by the delay in seconds, and then the message. For example, `!tr 5 Hello World!` will send "Hello World!" after a delay of 5 seconds.
-Usage: `!tr` `delay [SECONDS]` `message`
+
+**Usage:** `!tr` `delay [SECONDS]` `message`
 
 
 ### Send Multiple Messages with a Delay
 
 To send multiple messages with a delay between each one, use the `!and` command followed by the delay in seconds and then the messages, separated by commas. For example, `!and 3 Hello, How are you?, Goodbye!` will send "Hello", "How are you?", and "Goodbye!" with a delay of 3 seconds between each message.
 
+**Usage:** `!and(``message1`; `message2`; `...)`
+
 ### Send a Message at a Particular Time
 
 You can schedule a message to be sent at a particular time with the `!trd` command. For example, `!trd 12:30 It's lunchtime!` will send "It's lunchtime!" at 12:30.
+
+**Usage:** `!trd` `time [24HOURSYSTEM]` `message`
+
 
 ### Integrated with OpenAI's GPT-3 API
 
 The plugin also includes an integration with OpenAI's GPT-3 API. If you reply to a message with `!chrep`, the bot will use the replied message as input to the GPT-3 API and send the response as a message, and is capable of using the commands above to automatically respond to your friends' needs. Please note that this requires a valid API key.
 
+**Usage:** `!chrep` (replying to a message)
+
 ### Stackable Commands
 
 Commands provided by the DelayMessage plugin are stackable, allowing you to mix and match them for more complex interactions. For example, you can schedule a message to be sent at a particular time and also specify that it should automatically reply to a certain message with GPT-3.
+
+**Examples of usage:**
+`!and(0; reminding you to go to bed; !trd 22:00 go to bed)`
+`!trd 16:20 !and(0.7; OH MY GOD BRO; IT'S 4:20 OMG!!!!!)`
 
 ## Limitations/ Known Issues
 
