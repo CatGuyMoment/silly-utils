@@ -54,6 +54,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 1. "!config" command which lets you quickly change settings like your GPT-3 API key
 2. Contextualisation argument which helps GPT-3 understand what to do with the replied message better
+3. Support for end-to-end encrypted messages
 
 ## Installation
 
