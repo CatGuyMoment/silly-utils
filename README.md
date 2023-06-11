@@ -47,6 +47,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 1. Awful textbox message handling
 2. Delayed messages do not support attachments
 3. Stacking delays breaks textbox messages
+4. Absolutely zero support for other message-altering plugins, such as [Translator](https://betterdiscord.app/plugin/Translator)
 
 ## Planned features
 
