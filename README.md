@@ -50,9 +50,9 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 4. Stacking delays breaks textbox messages
 5. Absolutely zero support for other message-altering plugins, such as [Translator](https://betterdiscord.app/plugin/Translator)
 
-## Planned features
+## Planned/Beta features (see dev branch)
 
-1. "!config" command which lets you quickly change settings like your GPT-3 API key (see dev branch)
+1. "!config" command which lets you quickly change settings like your GPT-3 API key
 2. Contextualisation argument which helps GPT-3 understand what to do with the replied message better
 3. Support for end-to-end encrypted messages
 
