@@ -29,11 +29,14 @@ You can schedule a message to be sent at a particular time with the `!trd` comma
 
 This feature allows you to encrypt your messages for an added layer of security, and subsequently decrypt them. Your messages will only be visible to the intended recipients, ensuring secure communication.
 
-Usage: `!pub` (Sends public key in chat)
-`!enc` `message` (replying to a public key, for encryption)
-and `!dec` (decrypts all messages within a channel or DM)
+**Usage:**
 
-**Usage:** CHANGE THIS
+`!pub` (Sends public key in chat)
+
+`!enc` `message` (replying to a public key, for encryption)
+
+`!dec` (decrypts all messages within a channel or DM)
+
 
 ### Integrated with OpenAI's GPT-3 API
 
