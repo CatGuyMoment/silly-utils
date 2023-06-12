@@ -57,7 +57,6 @@ class DiscordUtils {
             true,
             ["encrypt", "decrypt"]
         ).then(function(keyPair) {
-            // The keyPair object contains the public and private keys
             const publicKey = keyPair.publicKey;
             const privateKey = keyPair.privateKey;
 
@@ -73,7 +72,6 @@ class DiscordUtils {
                 keys.privateKey = values[1];
 
                 let config = {
-                    // Add other configuration properties here
                     openai_api_key: "YourOpenAIAPIKey",
                     keys: keys
                 };
@@ -172,14 +170,12 @@ class DiscordUtils {
     const setting = parts[1]; // the setting to modify
     const newValue = parts[2]; // the new value for the setting
 
-    // Now load the config file
+    //Load the config file
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     console.log(config,parts,newValue,setting)
-    // Check if the setting exists
     if (config.hasOwnProperty(setting)) {
         // Update the setting
         config[setting] = newValue;
-        // Write the updated config back to the file
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
         console.log(`Setting ${setting} updated to ${newValue}`);
     } else {
@@ -220,10 +216,7 @@ bot: !and(0; I will remind you to brush your teeth in 5 minutes. ; !tr 300 brush
                 }
             }
         } else if (content.trim() === "!pub") {
-    // Load the configuration file
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-
-    // Extract the public key from the configuration
     const publicKey = config.keys.publicKey.n;
 
     // Send the public key
