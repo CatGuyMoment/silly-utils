@@ -25,6 +25,15 @@ You can schedule a message to be sent at a particular time with the `!trd` comma
 
 **Usage:** `!trd` `time [24HOURSYSTEM]` `message`
 
+### Encryption/Decryption System
+
+This feature allows you to encrypt your messages for an added layer of security, and subsequently decrypt them. Your messages will only be visible to the intended recipients, ensuring secure communication.
+
+Usage: `!pub` (Sends public key in chat)
+`!enc` `message` (replying to a public key, for encryption)
+and `!dec` (decrypts all messages within a channel or DM)
+
+**Usage:** CHANGE THIS
 
 ### Integrated with OpenAI's GPT-3 API
 
@@ -52,8 +61,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 ## Planned features
 
-1. "!config" command which lets you quickly change settings like your GPT-3 API key
-2. Contextualisation argument which helps GPT-3 understand what to do with the replied message better
+
 
 ## Installation
 
