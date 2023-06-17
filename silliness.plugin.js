@@ -19,6 +19,9 @@ async function getGPT3Response(messages) {
 
     const data = await response.json();
     console.log(data)
+    if (data==null) {
+        console.error("whoopsies, null")
+    }
     return data.choices[0].message.content.trim();
 }
 
@@ -51,7 +54,7 @@ async function decryptMessage(encryptedMessage) {
 
     // Decrypt the message
     let plainText;
-    try {
+
         plainText = await window.crypto.subtle.decrypt(
             {
                 name: "RSA-OAEP"
@@ -59,11 +62,6 @@ async function decryptMessage(encryptedMessage) {
             importedKey,
             ciphertext
         );
-    } catch (err) {
-        console.error("Decryption failed:", err);
-        return null;
-    }
-
     // Decode and return the decrypted message
     let decoder = new TextDecoder();
     return decoder.decode(plainText);
@@ -223,9 +221,9 @@ class DiscordUtils {
         if (msg.content.startsWith("ENCRYPTED")) {
             // Split the message content into two encrypted parts
             const encryptedParts = msg.content.split(' ENCRYPTED ');
-
+           
             // Decrypt the first part of the message content and replace the original encrypted message
-            decryptMessage(encryptedParts[1])
+            decryptMessage(encryptedParts[0].slice(9))
             .then(decryptedMessage => {
                 console.log(decryptedMessage, channelId, msg.id)
                 let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
@@ -235,10 +233,10 @@ class DiscordUtils {
                 }
             })
             .catch(error => {
-                console.log(error);
+                console.log("finna try again");
 
                 // If the first decryption attempt fails, try to decrypt the second part
-                decryptMessage(encryptedParts[2])
+                decryptMessage(encryptedParts[1])
                 .then(decryptedMessage => {
                     console.log(decryptedMessage, channelId, msg.id)
                     let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
