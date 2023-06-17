@@ -13,7 +13,7 @@ async function getGPT3Response(messages) {
         body: JSON.stringify({
             model: "gpt-3.5-turbo",
             messages,
-            max_tokens: 60,
+            max_tokens: 200,
         }),
     });
 
@@ -43,7 +43,7 @@ async function decryptMessage(encryptedMessage) {
     );
 
     // Convert the base64 encoded encryptedMessage into a Uint8Array
-    let encodedMessage = atob(encryptedMessage.slice(9));  // Remove the "ENCRYPTED" prefix
+    let encodedMessage = atob(encryptedMessage);  // "ENCRYPTED" prefix has already been removed
     let ciphertext = new Uint8Array(encodedMessage.length);
     for (let i = 0; i < encodedMessage.length; i++) {
         ciphertext[i] = encodedMessage.charCodeAt(i);
@@ -136,7 +136,6 @@ class DiscordUtils {
     }
     initialize() {
 
-
         
         
         console.log("DUtils: initialize");
@@ -157,14 +156,14 @@ class DiscordUtils {
                 console.error('MessageModule could not be found. DUtils plugin cannot start.');
                 return;
             }
-
+            
             this.cancel = BdApi.Patcher.instead('DelayMessage', MessageModule, "sendMessage", (thisObject, methodArguments, originalFunction) => {
                 const textbox = document.querySelector(".placeholder-1rCBhr.slateTextArea-27tjG0.fontSize16Padding-XoMpjI");
                 console.log("DUtils: instead sendMessage");
                 const [channelId, messageData, thirdOne, fourthOne] = methodArguments;
                 this.handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction, textbox);
             });
-
+             
            
 
 
@@ -206,41 +205,56 @@ class DiscordUtils {
                 }
             }, time * 1000 - 100);
         } else if (messageData.content.startsWith('!dec')) {
-        // Cancel the original sendMessage call
-        // This prevents the !dec command from actually being sent
+    // Cancel the original sendMessage call
+    // This prevents the !dec command from actually being sent
 
-        // Get a reference to the MessageStore module
-        const MessageStore = BdApi.findModuleByProps("getMessages");
-        if (!MessageStore) {
-            console.error('MessageStore could not be found. DUtils plugin cannot decrypt messages.');
-            return;
-        }
+    // Get a reference to the MessageStore module
+    const MessageStore = BdApi.findModuleByProps("getMessages");
+    if (!MessageStore) {
+        console.log('MessageStore could not be found. DUtils plugin cannot decrypt messages.');
+        return;
+    }
 
-        // Get the messages from the current channel
-        const messages = MessageStore.getMessages(channelId).toArray().reverse();
-        
-        // Decrypt each message
-        for (let msg of messages) {
-            if (msg.content.startsWith("ENCRYPTED")) {
-                // Decrypt the message content and replace the original encrypted message
-                decryptMessage(msg.content)
-    .then(decryptedMessage => {
+    // Get the messages from the current channel
+    const messages = MessageStore.getMessages(channelId).toArray().reverse();
     
-                
-                console.log(decryptedMessage,channelId,msg.id)
+    // Decrypt each message
+    for (let msg of messages) {
+        if (msg.content.startsWith("ENCRYPTED")) {
+            // Split the message content into two encrypted parts
+            const encryptedParts = msg.content.split(' ENCRYPTED ');
+
+            // Decrypt the first part of the message content and replace the original encrypted message
+            decryptMessage(encryptedParts[1])
+            .then(decryptedMessage => {
+                console.log(decryptedMessage, channelId, msg.id)
                 let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
                 if (messageElement) {
                     console.log(messageElement)
                     messageElement.innerText = `Decrypted: ${decryptedMessage}`;
                 }
-    }).catch(error => {
-        console.log(error);
-    });
-    
-            }
+            })
+            .catch(error => {
+                console.log(error);
+
+                // If the first decryption attempt fails, try to decrypt the second part
+                decryptMessage(encryptedParts[2])
+                .then(decryptedMessage => {
+                    console.log(decryptedMessage, channelId, msg.id)
+                    let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
+                    if (messageElement) {
+                        console.log(messageElement)
+                        messageElement.innerText = `Decrypted: ${decryptedMessage}`;
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+            });
         }
-        return;
-    } else if (content.startsWith("!rr ")) {
+    }
+    return;
+}  else if (content.startsWith("!rr ")) {
             // Extract the message to be corrected
             const messageToCorrect = content.slice(4);
 
@@ -353,20 +367,46 @@ bot: i cant do this anymore i cant do this anymore  i cant do this anymore  `
             messageData.content = `${JSON.stringify(publicKey)}`;
             originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
         } else if (content.startsWith("!enc ")) {
-            console.log("DUtils: message starts with !enc");
+    console.log("DUtils: message starts with !enc");
 
-            if (fourthOne && fourthOne.messageReference) {
-                let repliedMessageId = fourthOne.messageReference.message_id;
-                const channelStore = BdApi.findModuleByProps("getChannel");
-                const messageStore = BdApi.findModuleByProps("getMessage");
-                const channel = channelStore.getChannel(channelId);
-                const repliedMessage = messageStore.getMessage(channelId, repliedMessageId);
-                const publicKeyJson = JSON.parse(repliedMessage.content);
-                const messageToEncrypt = content.slice(5);
+    if (fourthOne && fourthOne.messageReference) {
+        let repliedMessageId = fourthOne.messageReference.message_id;
+        const channelStore = BdApi.findModuleByProps("getChannel");
+        const messageStore = BdApi.findModuleByProps("getMessage");
+        const channel = channelStore.getChannel(channelId);
+        const repliedMessage = messageStore.getMessage(channelId, repliedMessageId);
+        const publicKeyJson = JSON.parse(repliedMessage.content);
+        const messageToEncrypt = content.slice(5);
+
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const ownPublicKeyJson = config.keys.publicKey;
+
+        window.crypto.subtle.importKey(
+            'jwk',
+            publicKeyJson, {
+                name: "RSA-OAEP",
+                hash: {
+                    name: "SHA-256"
+                }
+            },
+            false,
+            ["encrypt"]
+        ).then(function(publicKey) {
+            // Encrypt the message
+            const encoder = new TextEncoder();
+            const data = encoder.encode(messageToEncrypt);
+            window.crypto.subtle.encrypt({
+                    name: "RSA-OAEP"
+                },
+                publicKey,
+                data
+            ).then(function(encryptedData) {
+                // Send the encrypted message
+                const encryptedMessage = 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedData)));
 
                 window.crypto.subtle.importKey(
                     'jwk',
-                    publicKeyJson, {
+                    ownPublicKeyJson, {
                         name: "RSA-OAEP",
                         hash: {
                             name: "SHA-256"
@@ -374,26 +414,29 @@ bot: i cant do this anymore i cant do this anymore  i cant do this anymore  `
                     },
                     false,
                     ["encrypt"]
-                ).then(function(publicKey) {
-                    // Encrypt the message
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(messageToEncrypt);
+                ).then(function(ownPublicKey) {
+                    // Encrypt the message with own public key
                     window.crypto.subtle.encrypt({
                             name: "RSA-OAEP"
                         },
-                        publicKey,
+                        ownPublicKey,
                         data
-                    ).then(function(encryptedData) {
-                        // Send the encrypted message
-                        const encryptedMessage = 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedData)));
-                        messageData.content = encryptedMessage;
+                    ).then(function(encryptedDataOwn) {
+                        // Append the second encrypted message
+                        const encryptedMessageOwn = ' ' + 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedDataOwn)));
+                        messageData.content = encryptedMessage + encryptedMessageOwn;
                         originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
                     });
                 }).catch(function(err) {
                     console.error(err);
                 });
-            }
-        } else if (content.startsWith("!trd ")) {
+
+            });
+        }).catch(function(err) {
+            console.error(err);
+        });
+    }
+} else if (content.startsWith("!trd ")) {
             console.log("DUtils: message starts with !trd");
             const time = content.split(" ")[1];
             const message = content.slice(content.indexOf(" ", content.indexOf(" ") + 1) + 1);
