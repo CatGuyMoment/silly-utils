@@ -1,4 +1,4 @@
-# DiscordUtils: Ghosting, simplified.
+![Silly Cover](silly-cover.png)
 
 ## Introduction
 
