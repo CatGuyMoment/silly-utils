@@ -67,7 +67,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 ### Misc. Commands
 
-the `!config` command lets you quickly change the config file through discord, without searching around on a file explorer.
+The `!config` command lets you quickly change the config file through discord, without searching around on a file explorer.
 
 **Usage:** `!config` `key` `newvalue`
 
