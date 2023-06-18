@@ -99,7 +99,7 @@ This plugin is designed to be used with the BetterDiscord application. To instal
 
 ## Credits
 
-pico for making the silly™️ cover
+pico for making the silly cover
 
 betterdiscord for existing
 
