@@ -25,7 +25,7 @@ You can schedule a message to be sent at a particular time with the `!trd` comma
 
 **Usage:** `!trd` `time [24HOURSYSTEM]` `message`
 
-### Encryption/Decryption System
+### RSA Encryption/Decryption System
 
 This feature allows you to encrypt your messages for an added layer of security, and subsequently decrypt them. Your messages will only be visible to the intended recipients, ensuring secure communication.
 
