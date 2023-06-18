@@ -51,7 +51,7 @@ The plugin also includes an integration with OpenAI's GPT-3 API. If you reply to
 
 You can also get GPT-3 to automatically correct and/or add punctiation to your messages.
 
-**Usage: `!rr` `!message`
+**Usage:** `!rr` `!message`
 
 ### Stackable Commands
 
