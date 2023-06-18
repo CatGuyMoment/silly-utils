@@ -97,3 +97,8 @@ This plugin is designed to be used with the BetterDiscord application. To instal
 7. The plugin should now be available for use
 8. (Optional step: type `!config openai_api_key YOURAPIKEY` in any discord chatbox to be able to use the commands which require integration with GPT-3)
 
+## Credits
+
+pico for making the silly™️ cover
+betterdiscord for existing
+stackoverflow for making this a lot easier
