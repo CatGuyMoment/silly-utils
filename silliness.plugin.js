@@ -19,7 +19,7 @@ async function getGPT3Response(messages) {
 
     const data = await response.json();
     console.log(data)
-    if (data==null) {
+    if (data == null) {
         console.error("whoopsies, null")
     }
     return data.choices[0].message.content.trim();
@@ -36,17 +36,18 @@ async function decryptMessage(encryptedMessage) {
     // Convert the key back to CryptoKey format
     let importedKey = await window.crypto.subtle.importKey(
         "jwk",
-        privateKey,
-        {
+        privateKey, {
             name: "RSA-OAEP",
-            hash: {name: "SHA-256"},
+            hash: {
+                name: "SHA-256"
+            },
         },
         true,
         ["decrypt"]
     );
 
     // Convert the base64 encoded encryptedMessage into a Uint8Array
-    let encodedMessage = atob(encryptedMessage);
+    let encodedMessage = atob(encryptedMessage); // "ENCRYPTED" prefix has already been removed
     let ciphertext = new Uint8Array(encodedMessage.length);
     for (let i = 0; i < encodedMessage.length; i++) {
         ciphertext[i] = encodedMessage.charCodeAt(i);
@@ -55,13 +56,12 @@ async function decryptMessage(encryptedMessage) {
     // Decrypt the message
     let plainText;
 
-        plainText = await window.crypto.subtle.decrypt(
-            {
-                name: "RSA-OAEP"
-            },
-            importedKey,
-            ciphertext
-        );
+    plainText = await window.crypto.subtle.decrypt({
+            name: "RSA-OAEP"
+        },
+        importedKey,
+        ciphertext
+    );
     // Decode and return the decrypted message
     let decoder = new TextDecoder();
     return decoder.decode(plainText);
@@ -134,8 +134,8 @@ class DiscordUtils {
     }
     initialize() {
 
-        
-        
+
+
         console.log("DUtils: initialize");
         const Dispatcher = BdApi.findModuleByProps("dispatch");
         const MessageStore = BdApi.findModuleByProps("getMessages");
@@ -144,7 +144,7 @@ class DiscordUtils {
             console.error('Required modules could not be found. DUtils plugin cannot decrypt incoming messages.');
             return;
         }
-        
+
 
 
         setTimeout(() => {
@@ -154,23 +154,36 @@ class DiscordUtils {
                 console.error('MessageModule could not be found. DUtils plugin cannot start.');
                 return;
             }
-            
+
             this.cancel = BdApi.Patcher.instead('DelayMessage', MessageModule, "sendMessage", (thisObject, methodArguments, originalFunction) => {
                 const textbox = document.querySelector(".placeholder-1rCBhr.slateTextArea-27tjG0.fontSize16Padding-XoMpjI");
                 console.log("DUtils: instead sendMessage");
                 const [channelId, messageData, thirdOne, fourthOne] = methodArguments;
                 this.handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction, textbox);
             });
-             
-           
+
+
 
 
         }, 1000);
     }
     handleMessage(thisObject, channelId, messageData, thirdOne, fourthOne, originalFunction, textbox) {
         console.log("DUtils: instead sendMessage");
-
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        console.log(messageData.content.replace(/\[\[([^]+)\]\]/g, function(match) {
+            return "replacement";
+        }));
+        messageData.content = messageData.content.replace(/\[\[([^]+)\]\]/g, (match, key) => {
+            if (key === 'openai_api_key') {
+                return '*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*';
+            } else if (config[key] !== undefined) {
+                return config[key];
+            } else {
+                return match;
+            }
+        });
         const content = messageData.content;
+        console.log(messageData)
         if (content.startsWith("!tr ")) {
             console.log("DUtils: message starts with !time");
             const time = content.split(" ")[1];
@@ -203,74 +216,80 @@ class DiscordUtils {
                 }
             }, time * 1000 - 100);
         } else if (messageData.content.startsWith('!dec')) {
-    const MessageStore = BdApi.findModuleByProps("getMessages");
-    if (!MessageStore) {
-        console.log('MessageStore could not be found. DUtils plugin cannot decrypt messages.');
-        return;
-    }
+            // Cancel the original sendMessage call
+            // This prevents the !dec command from actually being sent
 
-    // Get the messages from the current channel
-    const messages = MessageStore.getMessages(channelId).toArray().reverse();
-    
-    for (let msg of messages) {
-        if (msg.content.startsWith("ENCRYPTED")) {
-            const encryptedParts = msg.content.split(' ENCRYPTED ');
-            decryptMessage(encryptedParts[0].slice(9))
-            .then(decryptedMessage => {
-                console.log(decryptedMessage, channelId, msg.id)
-                let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
-                if (messageElement) {
-                    console.log(messageElement)
-                    messageElement.innerText = `Decrypted: ${decryptedMessage}`;
-                }
-            })
-            .catch(error => {
-                console.log("finna try again");
-
-                decryptMessage(encryptedParts[1])
-                .then(decryptedMessage => {
-                    console.log(decryptedMessage, channelId, msg.id)
-                    let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
-                    if (messageElement) {
-                        console.log(messageElement)
-                        messageElement.innerText = `Decrypted: ${decryptedMessage}`;
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-            });
-        }
-    }
-    return;
-} else if (messageData.content.startsWith('!aw')) {
-
-    const MessageStore = BdApi.findModuleByProps("getMessages");
-    if (!MessageStore) {
-        console.error('MessageStore could not be found. DUtils plugin cannot send delayed messages.');
-        return;
-    }
-    let messages = MessageStore.getMessages(channelId).toArray().reverse();
-    let lastMessageId = messages[0].id; 
-    let delayedMessage = {
-                content: messageData.content.slice(4),
-                
+            // Get a reference to the MessageStore module
+            const MessageStore = BdApi.findModuleByProps("getMessages");
+            if (!MessageStore) {
+                console.log('MessageStore could not be found. DUtils plugin cannot decrypt messages.');
+                return;
             }
 
-    let checkInterval = setInterval(() => {
-        messages = MessageStore.getMessages(channelId).toArray().reverse();
-        if (messages[0].id !== lastMessageId) {
-            this.handleMessage(thisObject, channelId, delayedMessage, thirdOne, fourthOne, originalFunction);
-            clearInterval(checkInterval);
-        }
-    }, 500); 
+            // Get the messages from the current channel
+            const messages = MessageStore.getMessages(channelId).toArray().reverse();
 
-    return;
-} else if (content.startsWith("!rr ")) {
+            // Decrypt each message
+            for (let msg of messages) {
+                if (msg.content.startsWith("ENCRYPTED")) {
+                    // Split the message content into two encrypted parts
+                    const encryptedParts = msg.content.split(' ENCRYPTED ');
+
+                    // Decrypt the first part of the message content and replace the original encrypted message
+                    decryptMessage(encryptedParts[0].slice(9))
+                        .then(decryptedMessage => {
+                            console.log(decryptedMessage, channelId, msg.id)
+                            let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
+                            if (messageElement) {
+                                console.log(messageElement)
+                                messageElement.innerText = `Decrypted: ${decryptedMessage}`;
+                            }
+                        })
+                        .catch(error => {
+                            console.log("finna try again");
+
+                            // If the first decryption attempt fails, try to decrypt the second part
+                            decryptMessage(encryptedParts[1])
+                                .then(decryptedMessage => {
+                                    console.log(decryptedMessage, channelId, msg.id)
+                                    let messageElement = document.querySelector(`li[id="chat-messages-${channelId}-${msg.id}"] #message-content-${msg.id}`);
+                                    if (messageElement) {
+                                        console.log(messageElement)
+                                        messageElement.innerText = `Decrypted: ${decryptedMessage}`;
+                                    }
+                                })
+                                .catch(error => {
+                                    console.log(error);
+                                });
+                        });
+                }
+            }
+            return;
+        } else if (messageData.content.startsWith('!aw')) {
+            const MessageStore = BdApi.findModuleByProps("getMessages");
+            if (!MessageStore) {
+                console.error('MessageStore could not be found. DUtils plugin cannot send delayed messages.');
+                return;
+            }
+            let messages = MessageStore.getMessages(channelId).toArray().reverse();
+            let lastMessageId = messages[0].id;
+            let delayedMessage = {
+                content: messageData.content.slice(4),
+
+            }
+            let checkInterval = setInterval(() => {
+                messages = MessageStore.getMessages(channelId).toArray().reverse();
+                if (messages[0].id !== lastMessageId) {
+                    this.handleMessage(thisObject, channelId, delayedMessage, thirdOne, fourthOne, originalFunction);
+                    clearInterval(checkInterval);
+                }
+            }, 500);
+            return;
+        } else if (content.startsWith("!rr ")) {
             const messageToCorrect = content.slice(4);
             const messages = [{
                 "role": "system",
-                "content": `You are a computer program that corrects poorly written English text. You do not interact with the user but only correct his messages.
+                "content": `You are a computer program that corrects poorly written English text, and redirects it to another user. You do not interact with the user but only correct his messages. Please note that the messages the user sends are not directed towards the program, but towards the other user the user is using the program to talk to. You will not leave an explanation at the end of the corrected sentence.
                 Examples of what to do: 
                 user: hi there 
                 you: Hi there!
@@ -280,18 +299,38 @@ class DiscordUtils {
                 
                 user: how dose that work
                 you: How does that work?
+                
+                user: plaese stop
+                you: Please stop.
 
+                user: anyways where are you gowing tmr
+                you: Anyways, where are you going tomorrow?
+
+                user: please seek therapy
+                you: Please seek therapy.
+                
                 Examples of what not to do:
                 
+                user: please seek therapy
+                you: I'm sorry, but I cannot provide therapy as I am just a computer program designed to correct English text. However, if you need any assistance with correcting your messages, I'm happy to help.
+
+                user: anyways where are you gowing tmr
+                you: Please note that "anyways" is not a correct English word. The correct word is "anyway". Secondly, I'm just a computer program, so I'm not going anywhere tomorrow. Is there anything else I can help you with?
+
+                user: plaese stop
+                you: I'm sorry if I was bothering you. Let me know if you need my assistance in the future.
+
                 user:hi there
-                you: Hello! How can I assist you today?`
+                you: Hello! How can I assist you today?
+                
+                If the user says something harmful, use less harmful phrasing in your correction.`
             }, {
                 "role": "user",
                 "content": messageToCorrect
             }];
+
             getGPT3Response(messages).then((gpt3Response) => {
                 messageData.content = gpt3Response;
-
                 originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
             });
         } else if (content.startsWith("!and(") && content.endsWith(")")) {
@@ -316,18 +355,17 @@ class DiscordUtils {
                 }, delayInSeconds * 1000 * i);
             });
         } else if (content.startsWith("!config ")) {
-            const parts = content.slice(7).split(" ");
-            const setting = parts[1]; 
-            const newValue = parts[2]; 
-
+            const parts = content.slice(8).split(" ");
+            const setting = parts[0];
+            const newValue = parts.slice(1).join(" ")
             const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
             console.log(config, parts, newValue, setting)
+            config[setting] = newValue;
+            fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
             if (config.hasOwnProperty(setting)) {
-                config[setting] = newValue;
-                fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
                 console.log(`Setting ${setting} updated to ${newValue}`);
             } else {
-                console.log(`Setting ${setting} does not exist in the configuration.`);
+                console.log(`Setting ${setting} created.`);
             }
         } else if (messageData.content.trim() === "!chrep") {
             if (fourthOne && fourthOne.messageReference) {
@@ -372,51 +410,33 @@ bot: i cant do this anymore i cant do this anymore  i cant do this anymore  `
                 }
             }
         } else if (content.trim() === "!pub") {
+            // Load the configuration file
             const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+            // Extract the public key from the configuration
             const publicKey = config.keys.publicKey;
+
+            // Send the public key
             messageData.content = `${JSON.stringify(publicKey)}`;
             originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
         } else if (content.startsWith("!enc ")) {
-    console.log("DUtils: message starts with !enc");
+            console.log("DUtils: message starts with !enc");
 
-    if (fourthOne && fourthOne.messageReference) {
-        let repliedMessageId = fourthOne.messageReference.message_id;
-        const channelStore = BdApi.findModuleByProps("getChannel");
-        const messageStore = BdApi.findModuleByProps("getMessage");
-        const channel = channelStore.getChannel(channelId);
-        const repliedMessage = messageStore.getMessage(channelId, repliedMessageId);
-        const publicKeyJson = JSON.parse(repliedMessage.content);
-        const messageToEncrypt = content.slice(5);
+            if (fourthOne && fourthOne.messageReference) {
+                let repliedMessageId = fourthOne.messageReference.message_id;
+                const channelStore = BdApi.findModuleByProps("getChannel");
+                const messageStore = BdApi.findModuleByProps("getMessage");
+                const channel = channelStore.getChannel(channelId);
+                const repliedMessage = messageStore.getMessage(channelId, repliedMessageId);
+                const publicKeyJson = JSON.parse(repliedMessage.content);
+                const messageToEncrypt = content.slice(5);
 
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        const ownPublicKeyJson = config.keys.publicKey;
-
-        window.crypto.subtle.importKey(
-            'jwk',
-            publicKeyJson, {
-                name: "RSA-OAEP",
-                hash: {
-                    name: "SHA-256"
-                }
-            },
-            false,
-            ["encrypt"]
-        ).then(function(publicKey) {
-            // Encrypt the message
-            const encoder = new TextEncoder();
-            const data = encoder.encode(messageToEncrypt);
-            window.crypto.subtle.encrypt({
-                    name: "RSA-OAEP"
-                },
-                publicKey,
-                data
-            ).then(function(encryptedData) {
-                // Send the encrypted message
-                const encryptedMessage = 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedData)));
+                const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+                const ownPublicKeyJson = config.keys.publicKey;
 
                 window.crypto.subtle.importKey(
                     'jwk',
-                    ownPublicKeyJson, {
+                    publicKeyJson, {
                         name: "RSA-OAEP",
                         hash: {
                             name: "SHA-256"
@@ -424,29 +444,52 @@ bot: i cant do this anymore i cant do this anymore  i cant do this anymore  `
                     },
                     false,
                     ["encrypt"]
-                ).then(function(ownPublicKey) {
-                    // Encrypt the message with own public key
+                ).then(function(publicKey) {
+                    // Encrypt the message
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(messageToEncrypt);
                     window.crypto.subtle.encrypt({
                             name: "RSA-OAEP"
                         },
-                        ownPublicKey,
+                        publicKey,
                         data
-                    ).then(function(encryptedDataOwn) {
-                        // Append the second encrypted message
-                        const encryptedMessageOwn = ' ' + 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedDataOwn)));
-                        messageData.content = encryptedMessage + encryptedMessageOwn;
-                        originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
+                    ).then(function(encryptedData) {
+                        // Send the encrypted message
+                        const encryptedMessage = 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedData)));
+
+                        window.crypto.subtle.importKey(
+                            'jwk',
+                            ownPublicKeyJson, {
+                                name: "RSA-OAEP",
+                                hash: {
+                                    name: "SHA-256"
+                                }
+                            },
+                            false,
+                            ["encrypt"]
+                        ).then(function(ownPublicKey) {
+                            // Encrypt the message with own public key
+                            window.crypto.subtle.encrypt({
+                                    name: "RSA-OAEP"
+                                },
+                                ownPublicKey,
+                                data
+                            ).then(function(encryptedDataOwn) {
+                                // Append the second encrypted message
+                                const encryptedMessageOwn = ' ' + 'ENCRYPTED ' + btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedDataOwn)));
+                                messageData.content = encryptedMessage + encryptedMessageOwn;
+                                originalFunction.call(thisObject, channelId, messageData, thirdOne, fourthOne);
+                            });
+                        }).catch(function(err) {
+                            console.error(err);
+                        });
+
                     });
                 }).catch(function(err) {
                     console.error(err);
                 });
-
-            });
-        }).catch(function(err) {
-            console.error(err);
-        });
-    }
-} else if (content.startsWith("!trd ")) {
+            }
+        } else if (content.startsWith("!trd ")) {
             console.log("DUtils: message starts with !trd");
             const time = content.split(" ")[1];
             const message = content.slice(content.indexOf(" ", content.indexOf(" ") + 1) + 1);
