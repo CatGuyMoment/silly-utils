@@ -65,6 +65,18 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 `!aw !tr 1 !and(1; anyways; gtg cya)`
 
+### Dynamic Keyword Replacement
+
+This plugin introduces a unique feature where you can utilize placeholders in your messages that will be dynamically replaced by corresponding values from a configuration file.
+
+To use this feature, you need to use the format `[[KEY]]` in your messages, where `KEY` corresponds to a key in your config.json file. The plugin will automatically replace `[[KEY]]` with the value associated with `KEY` in the config.json file.
+
+For example, if your config.json contains `{ "name": "John Doe" }`, and you send a message "`Hello, [[name]]!`", the plugin will process it as "`Hello, John Doe!`".
+
+As a security measure, if the user specifies `[[openai_api_key]]`, it will be replaced with `************` to prevent accidental exposure of sensitive information.
+
+**Usage:** `[[KEY]]`, where `KEY` is a key in the `config.json` file
+
 ### Misc. Commands
 
 The `!config` command lets you quickly change the config file through discord, without searching around on a file explorer.
