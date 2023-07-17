@@ -67,7 +67,7 @@ Commands provided by the DiscordUtils plugin are stackable, allowing you to mix 
 
 ### Dynamic Keyword Replacement
 
-This plugin introduces a unique feature where you can utilize placeholders in your messages that will be dynamically replaced by corresponding values from a configuration file.
+This plugin introduces a unique feature where you can utilize placeholders in your messages that will be dynamically replaced by corresponding values from a configuration file, recent message or pre-built command.
 
 To use this feature, you need to use the format `[[KEY]]` in your messages, where `KEY` corresponds to a key in your config.json file. The plugin will automatically replace `[[KEY]]` with the value associated with `KEY` in the config.json file.
 
@@ -75,7 +75,33 @@ For example, if your config.json contains `{ "name": "John Doe" }`, and you send
 
 As a security measure, if the user specifies `[[openai_api_key]]`, it will be replaced with `************` to prevent accidental exposure of sensitive information.
 
-**Usage:** `[[KEY]]`, where `KEY` is a key in the `config.json` file
+**Usage:** `literally whatever text you want` `[[KEY]]` `literally whatever text you want`, where `KEY` is a key in the `config.json` file
+
+The user can also type in `$$MSG` and have it dynamically replaced with the most recent message sent in a server or DM.
+
+**Usage:** `literally whatever text you want` `$$MSG` `literally whatever text you want`
+
+As per the standard, I obviously added a `chr[REQUEST]` replacement command which connects to GPT-3 with `REQUEST` as the prompt and is replaced with the response.
+
+**Usage:** `literally whatever text you want` `ch[message]` `literally whatever text you want`
+
+If you don't want the replacements to be instant or want to cancel them entierly, you can do so by putting a `#` before them.
+
+**Usage:** 
+
+`#$$MSG` (sends $$MSG)
+
+`##$$MSG` (sends #$$MSG)
+
+`!aw #$$MSG` (awaits the message and sends the contents of it)
+
+**More Examples:**
+
+`!aw "#$$MSG" -🤓` (automatically wins an argument)
+
+`[ch[pick any number from 1 to 4, only respond with the number]]` (picks out a message randomly out of a config file, assumes you already set `1`, `2`, `3` and `4` with `!config`
+
+`!aw !and(0.5; [[nymane]] is currently away. is there anything I can assist you with?; !aw !aw ####ch[####$$MSG])` ("simple" auto-responding bot, assumes you have already set `nyname` with `!config nymane your name`)
 
 ### Misc. Commands
 
@@ -83,6 +109,9 @@ The `!config` command lets you quickly change the config file through discord, w
 
 **Usage:** `!config` `key` `newvalue`
 
+The `!type` command either enables or disables the "Typing..." notification when you type. `start` keeps everything working as usual, `stop` blocks your notifications and `perm` forces them on until you send a message (perfect for a little tomfoolery).
+
+Usage: `!type` `start/stop/perm`
 
 ## Limitations/ Known Issues
 
@@ -91,10 +120,12 @@ The `!config` command lets you quickly change the config file through discord, w
 3. Commands do not support attachments
 4. Stacking delays breaks textbox messages
 5. Absolutely zero support for other message-altering plugins, such as [Translator](https://betterdiscord.app/plugin/Translator)
+6. Dynamic Keyword Replacement has inconsistent syntax
+7. `!type perm` is.. umm... *special*
 
-## Planned/Beta features (see dev branch)
+## Planned/Beta features
 
-1. Contextualisation argument which helps GPT-3 understand what to do with the replied message better
+uhh i ran out of ideas
 
 ## Installation
 
