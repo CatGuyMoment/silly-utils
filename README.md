@@ -95,13 +95,21 @@ If you don't want the replacements to be instant or want to cancel them entierly
 
 `!aw #$$MSG` (awaits the message and sends the contents of it)
 
+
+
 **More Examples:**
 
 `!aw "#$$MSG" -🤓` (automatically wins an argument)
 
-`[ch[pick any number from 1 to 4, only respond with the number]]` (picks out a message randomly out of a config file, assumes you already set `1`, `2`, `3` and `4` with `!config`
+`[ch[pick any number from 1 to 4, only respond with the number]]`
 
-`!aw !and(0.5; [[nymane]] is currently away. is there anything I can assist you with?; !aw !aw ####ch[####$$MSG])` ("simple" auto-responding bot, assumes you have already set `nyname` with `!config nymane your name`)
+(picks out a message randomly out of a config file, assumes you already set `1`, `2`, `3` and `4` with `!config`
+
+`!aw !and(0.5; [[nymane]] is currently away. is there anything I can assist you with?; !aw !aw ####ch[####$$MSG])`
+
+("simple" auto-responding bot, assumes you have already set `nyname` with `!config nymane your name`)
+
+
 
 ### Misc. Commands
 
